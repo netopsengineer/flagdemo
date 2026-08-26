@@ -1,0 +1,106 @@
+{
+  "behavioral_guards": [
+    "FLAGS_PER_REQUEST=N selects N distinct manifest keys and never repeats a key to inflate the count.",
+    "Every configured value opposes the caller default so OpenFeature fallbacks are detectable.",
+    "The application returns HTTP 502 when any evaluation errors or mismatches.",
+    "The load generator rejects error details, value mismatches, count mismatches, and digest mismatches; an HTTP 200 carrying fallback values is not a success.",
+    "Semantic preflight runs before every timed measurement and verifies the expected label, flag count, and spawned process ID.",
+    "The validator rejects unknown backends or strategies, a label that disagrees with its backend and strategy, and an invalid provider path.",
+    "threaded_batch offloads one unchanged sequential batch; threaded_parallel is optional and separately labelled.",
+    "Open-loop rows fail validation when the generator misses its schedule or records semantic or transport failures.",
+    "Invalid measurement rows are excluded from report aggregates while remaining validator failures.",
+    "The runner refuses invalid matrix values, refuses to overwrite output files, and uses a private temporary directory per run.",
+    "The application and microbenchmark share a Flipt-compatible string evaluation context."
+  ],
+  "catalog": {
+    "all_keys_distinct": true,
+    "caller_default": false,
+    "configured_value": true,
+    "count": 50,
+    "flagd_sha256": "31adce4ff204bf2166882ca9e3c1345467071669f0061c5a53d29beeb42349f7",
+    "manifest_sha256": "6a57056ca4d9f502cbf125eea206a8b720f25d3794628da38fc937c25415082d"
+  },
+  "live_checks": {
+    "app_import_and_route_registration": "pass",
+    "app_startup_uvicorn": "pass",
+    "catalog_regeneration_and_oversize_guard": "pass",
+    "closed_loop_stress_flagd_inprocess": "pass",
+    "container_build_from_lock": "pass",
+    "docker_available": true,
+    "flagd_rpc_integration": "pass",
+    "flipt_integration_50_distinct_flags": "pass",
+    "flipt_seed_create_and_idempotent_update": "pass",
+    "microbenchmark_all_provider_paths": "pass_counts_1_3_50",
+    "multi_rate_sweep_flagd_inprocess": "pass",
+    "open_loop_reduced_all_provider_matrix": {
+      "configurations": 6,
+      "failures": [],
+      "flag_counts": [
+        3,
+        50
+      ],
+      "measurement_rows": 12,
+      "rate_per_second": 5,
+      "row_sha256": "a02080b3b02a09d9420a7664e690fde2525cebb33670b907e3d07e3ec5bdc2f6",
+      "status": "pass",
+      "validator_ok": true,
+      "warnings": []
+    },
+    "output_overwrite_guard": "pass",
+    "report_and_validator_round_trip": "pass",
+    "semantic_preflight_process_identity": "pass",
+    "threaded_parallel_strategy": "pass"
+  },
+  "review_date_utc": "2026-08-26",
+  "schema_version": 3,
+  "scope": {
+    "benchmark_question": "Released Python OpenFeature provider paths in FastAPI using distinct boolean flags.",
+    "claim_boundary": "Valid for the pinned official Python OpenFeature provider paths and container versions, not every Flipt SDK or a custom adapter.",
+    "flagd_inprocess_path": "openfeature-provider-flagd file-backed resolver; isolates evaluation cost with no flag-sync overhead",
+    "flipt_path": "openfeature-provider-flipt over synchronous OFREP HTTP",
+    "performance_results_included": false,
+    "performance_results_note": "The reduced matrix is a publication smoke test, not performance evidence. Decision-grade results are produced by running the documented full harness."
+  },
+  "source": {
+    "active_source_tree_sha256": "5cadd841a65c1b28c218b2671771d153eb1ec053b5e4b99ceb1fe0bd1e22782b",
+    "container_images": {
+      "app": "flagdemo-app@sha256:a2555418f69cb8d21a76e30a21c3caae85ac19491436e09a8d09dc72b3c5dd8a",
+      "flagd": "ghcr.io/open-feature/flagd@sha256:268305c009e4d1490eae130c3fb767797a5a0f6b39455199a786a83b88bfd421",
+      "flipt": "docker.flipt.io/flipt/flipt@sha256:d20384874048ef6ac326f4937cee64f1db175a1878a87db32916cc8db46c740e",
+      "seed": "flagdemo-seed@sha256:dd36cedad785b1a5e8134a3f945bcd44bf539b2f719a29b51c27ab46ba6ef76b"
+    },
+    "container_tag_note": "Release tags are declared in Compose; resolved digests above were captured from the images used for this validation.",
+    "container_tags": {
+      "flagd": "ghcr.io/open-feature/flagd:v0.16.2",
+      "flipt": "docker.flipt.io/flipt/flipt:v2.11.0"
+    },
+    "docker": "Docker Engine 29.7.2; Docker Desktop 4.88.1",
+    "python": "3.12.14",
+    "requirements": {
+      "fastapi": "0.141.1",
+      "httpx": "0.28.1",
+      "openfeature-provider-flagd": "0.5.2",
+      "openfeature-provider-flipt": "0.1.3",
+      "openfeature-provider-ofrep": "0.3.0",
+      "openfeature-sdk": "0.10.0",
+      "uvicorn": "0.52.4"
+    },
+    "runtime_lock": "app/requirements.lock"
+  },
+  "static_checks": {
+    "ci_workflow_yaml_parse": "pass",
+    "docker_compose_config": "pass",
+    "generated_catalog_check": "pass",
+    "json_parse": "pass",
+    "metadata_capture": "pass",
+    "python_compileall": "pass",
+    "ruff_format": "pass",
+    "ruff_lint": "pass",
+    "shell_syntax": "pass",
+    "unit_tests": {
+      "status": "pass",
+      "tests": 20
+    }
+  },
+  "status": "publication_readiness_validation_passed"
+}

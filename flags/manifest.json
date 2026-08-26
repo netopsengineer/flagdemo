@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "catalog_name": "distinct-enabled-booleans",
+  "description": "Distinct enabled boolean flags. Each configured value is true and the caller default is false so fallback results are detectable.",
+  "selection": "prefix: each request evaluates the first N distinct keys",
+  "flags": [
+    {
+      "key": "checkout-flag-001",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-002",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-003",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-004",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-005",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-006",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-007",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-008",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-009",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-010",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-011",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-012",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-013",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-014",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-015",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-016",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-017",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-018",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-019",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-020",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-021",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-022",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-023",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-024",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-025",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-026",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-027",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-028",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-029",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-030",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-031",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-032",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-033",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-034",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-035",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-036",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-037",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-038",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-039",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-040",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-041",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-042",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-043",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-044",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-045",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-046",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-047",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-048",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-049",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    },
+    {
+      "key": "checkout-flag-050",
+      "type": "boolean",
+      "expected": true,
+      "default": false
+    }
+  ]
+}

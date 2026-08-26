@@ -1,0 +1,14 @@
+.DS_Store
+*.py[cod]
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+.venv/
+.uv-cache/
+.uv-python/
+
+results/*
+!results/README.md

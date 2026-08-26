@@ -1,0 +1,71 @@
+services:
+  flipt:
+    image: ${FLIPT_IMAGE:-docker.flipt.io/flipt/flipt:v2.11.0}
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    volumes:
+      - flipt-data:/var/opt/flipt
+  seed:
+    build:
+      context: .
+      dockerfile: seed/Dockerfile
+    environment:
+      FLIPT_URL: http://flipt:8080
+      FLIPT_ENVIRONMENT: ${FLIPT_ENVIRONMENT:-default}
+      FLIPT_NAMESPACE: ${FLIPT_NAMESPACE:-default}
+      FLAG_MANIFEST_PATH: /seed/manifest.json
+    volumes:
+      - ./flags/manifest.json:/seed/manifest.json:ro
+    depends_on:
+      flipt:
+        condition: service_started
+
+  flagd:
+    image: ${FLAGD_IMAGE:-ghcr.io/open-feature/flagd:v0.16.2}
+    command: ["start", "--uri", "file:/etc/flagd/flags.json"]
+    ports:
+      - "8013:8013"
+    volumes:
+      - ./flagd/flags.json:/etc/flagd/flags.json:ro
+
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      FLAG_BACKEND: ${FLAG_BACKEND:-flagd_inprocess}
+      FLAG_STRATEGY: ${FLAG_STRATEGY:-direct}
+      FLAGS_PER_REQUEST: ${FLAGS_PER_REQUEST:-3}
+      FLAG_POOL_SIZE: ${FLAG_POOL_SIZE:-16}
+      FLAG_DEADLINE_MS: ${FLAG_DEADLINE_MS:-500}
+      FLIPT_URL: ${FLIPT_URL:-http://flipt:8080}
+      FLIPT_ENVIRONMENT: ${FLIPT_ENVIRONMENT:-default}
+      FLIPT_NAMESPACE: ${FLIPT_NAMESPACE:-default}
+      FLAGD_HOST: ${FLAGD_HOST:-flagd}
+      FLAGD_PORT: ${FLAGD_PORT:-8013}
+      FLAGD_RPC_CACHE: ${FLAGD_RPC_CACHE:-disabled}
+      FLAGD_FLAG_FILE: /app/flagd/flags.json
+      FLAG_MANIFEST_PATH: /app/flags/manifest.json
+    volumes:
+      - ./flags/manifest.json:/app/flags/manifest.json:ro
+      - ./flagd/flags.json:/app/flagd/flags.json:ro
+    depends_on:
+      flipt:
+        condition: service_started
+      flagd:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+volumes:
+  flipt-data:
