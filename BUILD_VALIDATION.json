@@ -58,11 +58,11 @@
     "claim_boundary": "Valid for the pinned official Python OpenFeature provider paths and container versions, not every Flipt SDK or a custom adapter.",
     "flagd_inprocess_path": "openfeature-provider-flagd file-backed resolver; isolates evaluation cost with no flag-sync overhead",
     "flipt_path": "openfeature-provider-flipt over synchronous OFREP HTTP",
-    "performance_results_included": false,
-    "performance_results_note": "The reduced matrix is a publication smoke test, not performance evidence. Decision-grade results are produced by running the documented full harness."
+    "performance_results_included": true,
+    "performance_results_note": "README.md summarizes repeated same-host 50-flag capacity confirmations as local elimination evidence, not a production capacity ceiling. Raw rows, reports, validation, and metadata remain in the ignored local results directory."
   },
   "source": {
-    "active_source_tree_sha256": "4e5a2cc2e1f29d65bc4fa06c442ff2ef4a9d4c67ccf3d361604f2a868dad95ac",
+    "active_source_tree_sha256": "65fa56d0b28dec8d27a244076732bc309d1763e4637f0b0707b4ec8cdf925ca2",
     "container_images": {
       "app": "flagdemo-app@sha256:f2086f65544f3a4d22ec05de7c0320dc0068f05447180cdba543d1d980d042b8",
       "flagd": "ghcr.io/open-feature/flagd@sha256:268305c009e4d1490eae130c3fb767797a5a0f6b39455199a786a83b88bfd421",

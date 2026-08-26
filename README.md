@@ -95,13 +95,13 @@ semantic and schedule validation with zero failed requests.
 
 The 50-flag rows make the architectural result easiest to see:
 
-| Provider path and strategy | Request p50 | Evaluation p50 | Event-loop lag p99 |
-|---|---:|---:|---:|
-| flagd in-process, direct | 5.1 ms | 1.6 ms | 1.2 ms |
-| flagd RPC, direct | 58.6 ms | 52.8 ms | 55.5 ms |
-| flagd RPC, threaded batch | 55.6 ms | 52.3 ms | 1.1 ms |
-| Flipt OFREP HTTP, direct | 137.6 ms | 131.2 ms | 155.0 ms |
-| Flipt OFREP HTTP, threaded batch | 134.4 ms | 128.9 ms | 1.1 ms |
+| Provider path and strategy       | Request p50 | Evaluation p50 | Event-loop lag p99 |
+|----------------------------------|------------:|---------------:|-------------------:|
+| flagd in-process, direct         |      5.1 ms |         1.6 ms |             1.2 ms |
+| flagd RPC, direct                |     58.6 ms |        52.8 ms |            55.5 ms |
+| flagd RPC, threaded batch        |     55.6 ms |        52.3 ms |             1.1 ms |
+| Flipt OFREP HTTP, direct         |    137.6 ms |       131.2 ms |           155.0 ms |
+| Flipt OFREP HTTP, threaded batch |    134.4 ms |       128.9 ms |             1.1 ms |
 
 The data supports one strong implementation conclusion: invoking these
 synchronous remote providers directly blocks FastAPI's event loop. Moving the
@@ -122,6 +122,80 @@ provider ratio beyond this pinned same-host setup, use the smoke run as a
 maximum-throughput claim, or compare application CPU as total system CPU: the
 application metric excludes the Flipt and flagd service processes. Run the
 repeated matrix described below before publishing performance claims.
+
+## What the repeated local capacity ramp showed
+
+On August 26, 2026, the 50-flag workload was ramped until each path either
+queued, lost throughput, returned an invalid evaluation, or reached the limit
+of the same-host load generator. The application and generator ran on the
+macOS/ARM64 host; Flipt and flagd ran in Docker Desktop with six CPUs allocated.
+The application used one Uvicorn worker, a 16-worker flag pool, a 500 ms flag
+deadline, 5,000 virtual-user IDs, and uncached flagd RPC evaluation. Published
+versions were Flipt v2.11.0, flagd v0.16.2,
+`openfeature-provider-flipt==0.1.3`, and
+`openfeature-provider-flagd==0.5.2` on Python 3.12.14. Reported confirmation
+points contain three 15-second repetitions and passed semantic,
+matrix-completeness, and generator-schedule validation unless explicitly
+marked as rejected below.
+
+The values in this table are medians across those three repetitions. A capacity
+knee is identified by achieved rate falling below offered rate, a material
+drain after the 15-second arrival window, or a latency cliff. This classification
+is separate from the validator: a saturated row can still validate when every
+scheduled request is launched and eventually succeeds.
+
+| Provider path and strategy       | Repeated evidence                                                                                       | Next boundary evidence                                                                                                                   | Decision for this prototype                                                            |
+|----------------------------------|---------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| Flipt OFREP, direct              | At 8 offered req/s: 7.95 achieved, 304 ms request p95, 250 ms loop-lag p99; already unstable            | At 10 offered: 8.51 achieved, 2.57 s p95, 2.63 s median drain                                                                            | Eliminate for any request path that needs more than single-digit throughput            |
+| flagd RPC, direct                | At 40 offered: 39.99 achieved, 31 ms p95, 24 ms loop-lag p99                                            | At 50 offered: 44.50 achieved, 1.86 s p95, 547 ms loop-lag p99                                                                           | Eliminate at 50 req/s or when unrelated async endpoints need tight latency             |
+| Flipt OFREP, threaded batch      | At 50 offered: 49.94 achieved, 60 ms p95, 1.0 ms loop-lag p99                                           | At 75 offered: 58.46 achieved, 4.17 s p95, 4.24 s median drain                                                                           | Offload fixes loop health, but this local path is not viable at 75 req/s               |
+| flagd RPC, threaded batch        | At 75 offered: 74.94 achieved, 77 ms p95, 0.75 ms loop-lag p99                                          | The 100 req/s confirmation was rejected after 1 of 4,500 requests had a flag-evaluation error; diagnostic ramps queued by 175--200 req/s | Do not approve at 100+ req/s until the intermittent evaluation failure is diagnosed    |
+| flagd in-process, direct         | At 750 offered: 748.48 achieved, 1.68 ms p95, 0.51 ms loop-lag p99; 33,750 of 33,750 requests succeeded | At 1,000+ offered, repeated runs reached the local generator/client limit while provider evaluation stayed sub-millisecond               | Preferred path; its provider ceiling was not reached in this topology                  |
+| flagd in-process, threaded batch | At 500 offered: 498.94 achieved, 1.87 ms p95, 0.71 ms loop-lag p99; 22,500 of 22,500 requests succeeded | The same-host generator became inconsistent at 750+ req/s                                                                                | Capacity is ample, but offload adds no demonstrated value over the simpler direct path |
+
+The flagd RPC errors at 100 req/s are correctness failures, not merely slow
+responses. OpenFeature returned an evaluation error for one flag, the
+application returned HTTP 502, and the run-level validator rejected the run.
+The failed row was not included in a performance aggregate. Similar isolated
+errors appeared in diagnostic 125 and 150 req/s runs, so the 75 req/s clean
+confirmation is the highest publishable point from this local ramp.
+
+### How this maps to real traffic
+
+Five thousand users do not imply 5,000 requests/second. If every active user
+hits this 50-flag endpoint at the following average interval, the aggregate
+offered rate is:
+
+| Average request interval per user |  Aggregate rate | What this ramp says                                                                 |
+|-----------------------------------|----------------:|-------------------------------------------------------------------------------------|
+| 10 minutes                        | about 8.3 req/s | Flipt direct is already at its local knee and has no burst headroom                 |
+| 60 seconds                        |  about 83 req/s | Neither remote path has a clean confirmation at this rate; both in-process paths do |
+| 30 seconds                        | about 167 req/s | Only the in-process paths remain inside demonstrated clean capacity                 |
+| 10 seconds                        |       500 req/s | Both in-process strategies passed; direct was also clean at 750 req/s               |
+
+For an internal administration endpoint that rarely reaches 5 req/s, any path
+may be operationally adequate, although a direct synchronous remote provider
+can still delay unrelated requests on the same event loop during a burst. For
+a checkout, authorization, personalization, or API-gateway path serving tens
+or hundreds of requests per second, the per-flag remote round trips dominate:
+thread offload protects collateral endpoint latency but does not remove that
+work. At a requirement of at least 100 req/s with zero fallback tolerance, this
+run eliminates every measured remote configuration in its current form.
+
+The recommended implementation from this prototype is therefore
+`flagd_inprocess+direct`. The local resolver is already safe on the event loop,
+had the lowest latency, and was the only option independently validated above
+500 req/s without needing thread offload. `flagd_inprocess+threaded_batch` is
+not a bad result, but it is dominated by the simpler direct strategy here.
+
+These are elimination results for this pinned 50-flag, same-host experiment,
+not universal production capacity limits. Fewer flags will change the result
+but should not be extrapolated linearly. More Uvicorn workers or replicas can
+raise aggregate throughput without making a blocking provider non-blocking.
+A real deployment must repeat the chosen point with the load generator,
+application, and remote provider on independently monitored tiers. The
+file-backed in-process resolver also excludes production ruleset-delivery
+overhead; that delivery path must be validated separately.
 
 See [`docs/EXPERIMENT.md`](docs/EXPERIMENT.md) for the full methodology and
 interpretation contract.
@@ -236,17 +310,31 @@ duration to at least `5000 / RPS` if every ID must appear in a run.
 
 ```bash
 FLAG_COUNTS="50" \
-RATES="50 100 250 500" \
+RATES="40 50" \
+BACKENDS="flagd_rpc" \
+STRATEGIES="direct" \
 VIRTUAL_USERS=5000 \
 REPS=3 \
+DURATION=15 \
+WARMUP=2 \
+RUN_MICRO=0 \
 ./run_experiment.sh
 ```
 
-Before committing to a long matrix, run a single row at your target flag count
-and check that it passes validation. Remote paths issue one round trip per
-flag, so 50 flags per request at a high rate can exceed what a single worker
-can serve; a saturated run fails validation rather than producing a usable
-number.
+Ramp one backend/strategy pair at a time so a badly saturated path does not
+make the rest of a matrix wait for its queue to drain. Before committing to a
+long matrix, run one repetition at the target flag count and check that it
+passes validation, then repeat the two rates around the observed knee. Remote
+paths issue one round trip per flag, so 50 flags per request can exceed what one
+application worker, thread pool, or provider service can sustain.
+
+Validation proves matrix completeness, response semantics, and generator
+health; it does not impose a service latency or throughput SLO. A saturated row
+may therefore validate if all requests eventually complete. Reject a capacity
+point when achieved rate materially trails offered rate, the drain duration
+grows, or latency jumps relative to the preceding rate. If generator launch lag
+fails validation, move the generator to another host before making a provider
+capacity claim.
 
 Do not use one shared laptop or VM to establish a production ceiling. Put the
 load generator, application tier, and remote flag service on separate hosts and
