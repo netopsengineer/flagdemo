@@ -62,9 +62,9 @@
     "performance_results_note": "The reduced matrix is a publication smoke test, not performance evidence. Decision-grade results are produced by running the documented full harness."
   },
   "source": {
-    "active_source_tree_sha256": "5d67fafd085d1753b4d4e785c7fee3ef20606452e272932e07abc63eeef2ac40",
+    "active_source_tree_sha256": "4e5a2cc2e1f29d65bc4fa06c442ff2ef4a9d4c67ccf3d361604f2a868dad95ac",
     "container_images": {
-      "app": "flagdemo-app@sha256:9f5801c9b024e239410fe85afc3642215bdd2e5f00bc7aba591b5cab8ef01312",
+      "app": "flagdemo-app@sha256:f2086f65544f3a4d22ec05de7c0320dc0068f05447180cdba543d1d980d042b8",
       "flagd": "ghcr.io/open-feature/flagd@sha256:268305c009e4d1490eae130c3fb767797a5a0f6b39455199a786a83b88bfd421",
       "flipt": "docker.flipt.io/flipt/flipt@sha256:d20384874048ef6ac326f4937cee64f1db175a1878a87db32916cc8db46c740e",
       "seed": "flagdemo-seed@sha256:dd36cedad785b1a5e8134a3f945bcd44bf539b2f719a29b51c27ab46ba6ef76b"
@@ -99,7 +99,7 @@
     "shell_syntax": "pass",
     "unit_tests": {
       "status": "pass",
-      "tests": 23
+      "tests": 24
     }
   },
   "status": "publication_readiness_validation_passed"

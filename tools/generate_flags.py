@@ -72,6 +72,9 @@ def write_atomic(path: Path, content: str) -> None:
     ) as handle:
         handle.write(content)
         temp_name = handle.name
+    # flagd runs as a non-root user on Linux. NamedTemporaryFile defaults to
+    # 0600, which makes a bind-mounted generated document unreadable there.
+    os.chmod(temp_name, 0o644)
     os.replace(temp_name, path)
 
 

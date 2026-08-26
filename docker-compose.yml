@@ -26,8 +26,6 @@ services:
     command: ["start", "--uri", "file:/etc/flagd/flags.json"]
     ports:
       - "${FLAGD_BIND_ADDRESS:-127.0.0.1}:${FLAGD_PORT:-8013}:8013"
-    sysctls:
-      net.ipv6.bindv6only: "0"
     volumes:
       - ./flagd/flags.json:/etc/flagd/flags.json:ro
 

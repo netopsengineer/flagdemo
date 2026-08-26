@@ -21,7 +21,12 @@ from bench.contract import validate_checkout_payload
 from bench.preflight import validate_info_expectations
 from bench.validate_results import validate_configuration_identity
 from seed import seed
-from tools.generate_flags import build_flagd_document, build_manifest, render_json
+from tools.generate_flags import (
+    build_flagd_document,
+    build_manifest,
+    render_json,
+    write_atomic,
+)
 
 
 def digest_for(values: list[tuple[str, bool]]) -> str:
@@ -62,6 +67,12 @@ class CatalogTests(unittest.TestCase):
             )
             with self.assertRaises(ValueError):
                 select_flags(catalog, 51)
+
+    def test_atomic_catalog_output_is_container_readable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "flags.json"
+            write_atomic(path, "{}\n")
+            self.assertEqual(path.stat().st_mode & 0o777, 0o644)
 
 
 class ConfigurationTests(unittest.TestCase):
