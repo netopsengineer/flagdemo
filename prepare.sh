@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 CATALOG_SIZE="${FLAG_CATALOG_SIZE:-50}"
+FLAGD_READY_HOST="${FLAGD_HOST:-localhost}"
+FLAGD_READY_PORT="${FLAGD_PORT:-8013}"
 
 if [[ -x "$ROOT/.venv/bin/python" ]]; then
   PYTHON_BIN="$ROOT/.venv/bin/python"
@@ -28,21 +30,29 @@ fi
 docker compose up -d flipt flagd
 docker compose run --rm seed
 
-"$PYTHON_BIN" - <<'PYWAIT'
+if ! "$PYTHON_BIN" - "$FLAGD_READY_HOST" "$FLAGD_READY_PORT" <<'PYWAIT'
 import socket
+import sys
 import time
 
+host = sys.argv[1]
+port = int(sys.argv[2])
 deadline = time.monotonic() + 60
 while time.monotonic() < deadline:
     try:
-        with socket.create_connection(("127.0.0.1", 8013), timeout=1):
+        with socket.create_connection((host, port), timeout=1):
             break
     except OSError:
         time.sleep(0.5)
 else:
-    raise SystemExit("flagd did not accept connections on 127.0.0.1:8013")
+    raise SystemExit(f"flagd did not accept connections on {host}:{port}")
 PYWAIT
+then
+  docker compose ps --all >&2 || true
+  docker compose logs --no-color --tail=200 flagd >&2 || true
+  exit 1
+fi
 
 echo "Prepared $CATALOG_SIZE distinct flags in Flipt and flagd."
-echo "Next: uv pip install --python .venv/bin/python -r requirements-dev.txt"
+echo "Next: uv pip install --python .venv/bin/python -r app/requirements.lock -r requirements-dev.txt"
 echo "Then: ./run_experiment.sh"

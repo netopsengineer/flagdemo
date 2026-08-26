@@ -18,7 +18,9 @@
 
   ```bash
   uv venv --python 3.12
-  uv pip install --python .venv/bin/python -r requirements-dev.txt
+  uv pip install --python .venv/bin/python \
+    -r app/requirements.lock \
+    -r requirements-dev.txt
   ```
 
 - Require Docker with the Compose plugin for Flipt, flagd RPC, image-build, and

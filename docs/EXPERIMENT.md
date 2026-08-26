@@ -185,7 +185,9 @@ The metadata capture records the resolved Docker image IDs and repository digest
 
 ```bash
 uv venv --python 3.12
-uv pip install --python .venv/bin/python -r requirements-dev.txt
+uv pip install --python .venv/bin/python \
+  -r app/requirements.lock \
+  -r requirements-dev.txt
 source .venv/bin/activate
 ```
 

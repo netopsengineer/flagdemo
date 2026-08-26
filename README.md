@@ -138,7 +138,9 @@ Run these commands from the repository root:
 
 ```bash
 uv venv --python 3.12
-uv pip install --python .venv/bin/python -r requirements-dev.txt
+uv pip install --python .venv/bin/python \
+  -r app/requirements.lock \
+  -r requirements-dev.txt
 ```
 
 Activating the environment is optional. The runner automatically uses

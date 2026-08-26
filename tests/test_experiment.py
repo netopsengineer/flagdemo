@@ -220,6 +220,21 @@ class MetadataTests(unittest.TestCase):
             self.assertNotEqual(first_digest, tree_sha256(root))
 
 
+class DependencyManifestTests(unittest.TestCase):
+    def test_dev_requirements_do_not_reference_a_nested_lock(self) -> None:
+        dev_requirements = (REPO_ROOT / "requirements-dev.txt").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn("-r", dev_requirements)
+
+    def test_ci_installs_runtime_lock_and_dev_requirements_explicitly(self) -> None:
+        workflow = (REPO_ROOT / ".github/workflows/verify.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("-r app/requirements.lock", workflow)
+        self.assertIn("-r requirements-dev.txt", workflow)
+
+
 class SchedulingTests(unittest.TestCase):
     def test_half_open_arrival_count(self) -> None:
         self.assertEqual(planned_request_count(40.0, 15.0), 600)
@@ -330,6 +345,12 @@ class RunnerMatrixParsingTest(unittest.TestCase):
         script = (REPO_ROOT / "prepare.sh").read_text(encoding="utf-8")
         self.assertIn('if [[ -x "$ROOT/.venv/bin/python" ]]', script)
         self.assertIn('PYTHON_BIN="$ROOT/.venv/bin/python"', script)
+
+    def test_prepare_uses_the_configured_flagd_host_endpoint(self) -> None:
+        script = (REPO_ROOT / "prepare.sh").read_text(encoding="utf-8")
+        self.assertIn('FLAGD_READY_HOST="${FLAGD_HOST:-localhost}"', script)
+        self.assertIn('FLAGD_READY_PORT="${FLAGD_PORT:-8013}"', script)
+        self.assertIn("socket.create_connection((host, port)", script)
 
     def test_default_rate_is_safe_for_the_slowest_smoke_path(self) -> None:
         script = (REPO_ROOT / "run_experiment.sh").read_text(encoding="utf-8")
