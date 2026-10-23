@@ -33,6 +33,13 @@ jobs:
           -r app/requirements.lock
           -r requirements-dev.txt
 
+      - name: Audit locked runtime dependencies
+        run: |
+          python -m venv "${RUNNER_TEMP}/flagdemo-audit"
+          "${RUNNER_TEMP}/flagdemo-audit/bin/python" -m pip install pip-audit==2.10.1
+          "${RUNNER_TEMP}/flagdemo-audit/bin/python" -m pip_audit --strict --no-deps --disable-pip -r app/requirements.lock
+          python -c 'import certifi, urllib3; print("Installed runtime:", "certifi", certifi.__version__, "urllib3", urllib3.__version__)'
+
       - name: Static and unit checks
         run: |
           ruff check app bench seed tools tests
